@@ -1,20 +1,23 @@
 function buildMetadata(sample) {
 
   // @TODO: Complete the following function that builds the metadata panel
+  // Use `d3.json` to fetch the metadata for a sample
 d3.json(`/metadata/${sample}`).then((data) => {
+
+  // Use d3 to select the panel with id of `#sample-metadata`
   var panel = d3.select("#sample-metadata");
+
+  // Use `.html("") to clear any existing metadata
   panel.html("");
 
+  // Use `Object.entries` to add each key and value pair to the panel
   Object.entries(data).forEach(([key,value]) => {
-    panel.append("h6").text(`${key}:${value}`);
+    panel.append("p").text(`${key}:${value}`);
+    console.log(key,value)
   }) 
 })
-  // Use `d3.json` to fetch the metadata for a sample
-    // Use d3 to select the panel with id of `#sample-metadata`
+    
 
-    // Use `.html("") to clear any existing metadata
-
-    // Use `Object.entries` to add each key and value pair to the panel
     // Hint: Inside the loop, you will need to use d3 to append new
     // tags for each key-value in the metadata.
 
@@ -29,13 +32,10 @@ function buildCharts(sample) {
     const otu_ids = data.otu_ids;
     const otu_labels = data.otu_labels;
     const sample_values = data.sample_values;
+    console.log(otu_ids,otu_labels,sample_values);
 
-    var Layout_bubble = {
-      margin: {t:0},
-      hovermode:"closest",
-      xaxis:{title: "Otu ID"}
-    };
-    var data_bubble = [{
+    // @TODO: Build a Bubble Chart using the sample data
+    var trace_bubble = {
       x:otu_ids,
       y:sample_values,
       text:otu_labels,
@@ -43,29 +43,41 @@ function buildCharts(sample) {
       marker:{
         size: sample_values,
         color:otu_ids,
-        colorscale:"Earth"
+        labels: otu_labels,
+        type:"scatter",
+        opacity:0.5
       }
-    }];
-
-    plotly.plot("bubble", data_bubble, Layout_bubble);
-
-
-    var layout_pie = {
-      margin:{t:0, l:0}
     };
-    var data_pie = [{
-      values:sample_values.slice(0,10),
-      labels:otu_ids.slice(0,10),
-      hovertext:otu_labels.slice(0,10),
-      hoverinfo:"hovertext",
-      type:"pie"
-    }];
 
-    plotly.plot("pie", data_pie, layout_pie);
-  })
-    // @TODO: Build a Bubble Chart using the sample data
+    var data_bubble = [trace_bubble]
+
+    var layout_bubble = {
+      // margin: {t:0},
+      xaxis:{title: "OTU ID"},
+      showlegent:true
+    };
+
+    Plotly.newPlot("bubble", data_bubble, layout_bubble);
+
 
     // @TODO: Build a Pie Chart
+    var trace_pie = {
+      values:sample_values.slice(0,10),
+      labels:otu_ids.slice(0,10),
+      text:otu_labels.slice(0,10),
+      type:"pie"
+    };
+
+    var data_pie = [trace_pie]
+
+    // var layout_pie = {
+    //   margin:{t:0, l:0}
+    // };
+
+    Plotly.newPlot("pie", data_pie);
+  });
+
+    
     // HINT: You will need to use slice() to grab the top 10 sample_values,
     // otu_ids, and labels (10 each).
 }
@@ -98,6 +110,5 @@ function optionChanged(newSample) {
 
 // Initialize the dashboard
 init();
-
 
 
